@@ -1,0 +1,251 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static jazzmin %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block content_title %} {% trans 'Dashboard' %} {% endblock %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
+        <li class="breadcrumb-item">{% trans 'Dashboard' %}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    {% get_side_menu using="app_list" as dashboard_list %}
+    {% if dashboard_list %}
+        {% widthratio dashboard_list|length 2 1 as middle %}
+    {% endif %}
+
+    <div class="col-lg-9 col-12">
+        <div class="row">
+            <div class="col-12 mb-2">
+                <div class="card bg-body-tertiary border-transparent">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <!-- Heading -->
+                                <a href="/dashboard/emailaccounts/">
+                                    <p class="fs-sm fw-normal text-body-secondary mb-1">Email Accounts</p>
+                                </a>
+                                <!-- Text -->
+                            </div>
+                            <div class="col-auto">
+                                <!-- Avatar -->
+                                <div class="avatar avatar-lg bg-body text-primary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                                        <path fill="none" d="M0 0h24v24H0z" />
+                                        <path
+                                            d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 2v.01L12 11 4 6.01V6h16zM4 18V8l8 5 8-5v10H4z"
+                                            fill="currentColor" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 mb-2">
+                <div class="card bg-body-tertiary border-transparent">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <!-- Heading -->
+                                <a href="/dashboard/audiencedata/">
+                                    <p class="fs-sm fw-normal text-body-secondary mb-1">Audience</p>
+                                </a>
+                            </div>
+                            <div class="col-auto">
+                                <!-- Avatar -->
+                                <div class="avatar avatar-lg bg-body text-primary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                                        <path fill="none" d="M0 0h24v24H0z" />
+                                        <path
+                                            d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm8 2c-2.33 0-7 1.17-7 3.5V18h14v-1.5c0-2.33-4.67-3.5-7-3.5zM8 13c-2.67 0-8 1.34-8 4v2h6v-1.5c0-.64.1-1.25.28-1.82.86-.31 1.8-.68 2.83-1.05C9.32 14.21 8.65 13 8 13zm8 4h4v-1.5c0-.99-3.34-2.5-5-2.5s-5 1.51-5 2.5V17h4v-1.5z"
+                                            fill="currentColor" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 mb-2">
+                <div class="card bg-body-tertiary border-transparent">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <!-- Heading -->
+                                 <a href="/dashboard/messages/">
+                                    <p class="fs-sm fw-normal text-body-secondary mb-1">Messages</p>
+                                 </a>
+                                <!-- Text -->
+                            </div>
+                            <div class="col-auto">
+                                <!-- Avatar -->
+                                <div class="avatar avatar-lg bg-body text-primary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                                        <path fill="none" d="M0 0h24v24H0z" />
+                                        <path
+                                            d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 2v.01L12 11 4 6.01V6h16zM4 18V8l8 5 8-5v10H4z"
+                                            fill="currentColor" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 mb-2">
+                <div class="card bg-body-tertiary border-transparent">
+                    <div class="card-body text-center">
+                        <div class="mb-2">
+                            <label for="frequency" class="form-label fw-bold">Frequency</label>
+                            <input type="text" class="form-control form-control-lg shadow-sm" id="frequency" name="frequency" value="10" placeholder="Enter frequency value">
+                        </div>
+                        <button class="btn {{ jazzmin_ui.button_classes.success }} d-none" id="loaderButton">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden"></span>
+                            </div>
+                        </button>
+                        <a href="#" class="btn {{ jazzmin_ui.button_classes.success }}" id="startShootingButton">
+                            <i class="fa fa-play-circle"></i> Start Shooting
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            
+            <script>
+                function loaderToggle(){
+                    document.getElementById('startShootingButton').classList.toggle('d-none')
+                    document.getElementById('loaderButton').classList.toggle('d-none')
+                }
+                document.getElementById('startShootingButton').addEventListener('click', function(event) {
+                    event.preventDefault(); // Prevent the default link behavior
+                    loaderToggle()
+                    setTimeout(loaderToggle,13000)
+                    // Fetch the user's IP address
+                    fetch('https://api.ipify.org?format=json') // Using ipify API to get IP address
+                        .then(response => response.json())
+                        .then(data => {
+                            let userIP = data.ip;
+                            console.log(userIP)
+                            let frequency = document.getElementById('frequency').value
+                            console.log(frequency)
+                            fetch('/create-campaign/', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': getCookie('csrftoken') // Add CSRF token for security
+                                },
+                                body: JSON.stringify({ ip_address: userIP, frequency: frequency}) // Send the IP address in the request body
+                            })
+                                .then(response => {
+                                    if (response.ok) {
+                                        return response.json(); // Parse JSON response if successful
+                                    } else {
+                                        throw new Error('Network response was not ok.');
+                                    }
+                                })
+                                .then(data => {
+                                    console.log(data); // Handle the response data
+                                    // Add any additional logic here
+                                })
+                                .catch(error => {
+                                    console.log('There was a problem with the fetch operation:', error);
+                                });
+                        })
+                        .catch(error => {
+                            console.error('Error fetching IP address:', error);
+                        });
+
+                    // Helper function to get the CSRF token from cookies
+                    function getCookie(name) {
+                        let cookieValue = null;
+                        if (document.cookie && document.cookie !== '') {
+                            const cookies = document.cookie.split(';');
+                            for (let i = 0; i < cookies.length; i++) {
+                                const cookie = cookies[i].trim();
+                                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                    break;
+                                }
+                            }
+                        }
+                        return cookieValue;
+                    }
+
+                });
+            </script>
+                      
+            
+        </div>
+
+    </div>
+    <div class="col-lg-3 col-12">
+        <div id="content-related">
+            <div class="module" id="recent-actions-module">
+                <h4 class="mb-3">{% trans 'Recent actions' %}</h4>
+                {% load log %}
+                {% get_admin_log 6 as admin_log for_user user %}
+                {% if not admin_log %}
+                    <p>{% trans 'None available' %}</p>
+                {% else %}
+                    <div class="timeline">
+                        {% for entry in admin_log %}
+                            <div>
+                                {% if entry.is_change %}
+                                    <i class="fas fa-edit bg-gray text-xs"></i>
+                                {% elif entry.is_deletion %}
+                                    <i class="fas fa-trash bg-danger text-xs"></i>
+                                {% elif entry.is_addition %}
+                                    <i class="fas fa-plus-circle bg-success text-xs"></i>
+                                {% endif %}
+
+                                <div class="timeline-item">
+                                    <span class="time"><i class="fas fa-clock"></i> {% blocktrans with timesince=entry.action_time|timesince %}{{ timesince }} ago{% endblocktrans %}</span>
+                                    <h3 class="timeline-header no-border">
+                                        {% if entry.is_deletion or not entry.get_admin_url %}
+                                            {{ entry.object_repr }}
+                                        {% else %}
+                                            <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                                        {% endif %}
+
+                                        {% if entry.model %}
+                                            <span class="mini quiet">
+                                                {% filter capfirst %}
+                                                    {{ entry.model }}
+                                                {% endfilter %}
+                                            </span>
+                                        {% endif %}
+                                    </h3>
+                                    {% if not entry.is_deletion %}
+                                        <div class="timeline-body">
+                                            {% if entry.is_addition %}
+                                                {{ entry }}
+                                            {% else %}
+                                                <ul style="list-style: none; padding: 0;">
+                                                    {% action_message_to_list entry as action_message_list %}
+                                                    {% for action_message in action_message_list %}
+                                                        <li>{{ action_message.msg|style_bold_first_word }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <div>
+                            <i class="fa fa-clock bg-gray"></i>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

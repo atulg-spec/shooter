@@ -41,10 +41,15 @@ def getcampaigns(request,ipaddress):
     for x in AudienceData.objects.all():
         print(x.user)
     emails = [mail.email for mail in AudienceData.objects.filter(user=campaign.user)]
-    msg = Messages.objects.filter(user=campaign.user).first()
-    if not msg:
+    msgs = Messages.objects.filter(user=campaign.user)
+    if not msgs:
         return JsonResponse({'status':False,'data':{'error':'No Message Added'}}, safe=False)
-    rendered_message = render_to_string('template.html', {'message': msg.content})
+    subjects = []
+    messages = []
+    for mail in msgs:    
+        rendered_message = render_to_string('template.html', {'message': mail.content})
+        messages.append(rendered_message)
+        subjects.append(mail.subject)
     accounts = []
     accountsObjects = EmailAccounts.objects.filter(user=campaign.user)
     if not accountsObjects:
@@ -56,8 +61,8 @@ def getcampaigns(request,ipaddress):
             'frequency': campaign.frequency,
             'accounts': accounts,
             'emails': emails,
-            'subject': msg.subject,
-            'message': rendered_message,
+            'subject': subjects,
+            'message': messages,
         }
     # Return JSON response
     return JsonResponse({'status':True,'data':campaign_data}, safe=False)

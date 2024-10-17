@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-$hq-*2u=tc2g!eo1_%y4t_8x^8va(1pl97_txl7s1)gk2+6iss'
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -108,16 +108,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 STATIC_URL = '/static/'
 # MEDIA_URL = '/media/'
-# STATIC_ROOT = 'static'
+STATIC_ROOT = 'static'
 # MEDIA_ROOT = 'media'
 MEDIA_ROOT=os.path.join(BASE_DIR,'static/media/')
 MEDIA_URL="/media/"
 CKEDITOR_UPLOAD_SLUGIFY_FILENAME = False
 CKEDITOR_UPLOAD_PATH = os.path.join(MEDIA_ROOT, "ckeditor")
 
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
-)
+#STATICFILES_DIRS = (
+#    os.path.join(BASE_DIR, 'static'),
+#)
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 

@@ -184,6 +184,12 @@ admin.site.register(AudienceData, AudienceAdmin)
 class MessageAdmin(admin.ModelAdmin):
     list_display = ('subject',)
     
+    def get_queryset(self, request):
+        """Filter the queryset to show only the audience data for the current user unless they are superuser or staff."""
+        qs = super().get_queryset(request)
+        if request.user.is_superuser or request.user.is_staff:
+            return qs  # Superusers and staff can see all data
+        return qs.filter(user=request.user)  # Regular users only see their data
     # Adding the bulk upload functionality
     def save_model(self, request, obj, form, change):
         if not obj.user_id:

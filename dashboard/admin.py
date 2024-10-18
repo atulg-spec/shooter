@@ -219,6 +219,6 @@ class CampaignAdmin(admin.ModelAdmin):
 
 admin.site.register(Campaign, CampaignAdmin)
 
-admin.site.site_header = "Mailing Web"
-admin.site.site_title = "Mailing Web"
-admin.site.index_title = "Mailing Admin"
+admin.site.site_header = "GMAIL SHOOTER"
+admin.site.site_title = "GMAIL SHOOTER"
+admin.site.index_title = "GMAIL SHOOTER"

@@ -219,6 +219,6 @@ class CampaignAdmin(admin.ModelAdmin):
 
 admin.site.register(Campaign, CampaignAdmin)
 
-admin.site.site_header = "GMAIL SHOOTER"
-admin.site.site_title = "GMAIL SHOOTER"
-admin.site.index_title = "GMAIL SHOOTER"
+admin.site.site_header = "GMAIL SHOOTER 0.8"
+admin.site.site_title = "GMAIL SHOOTER 0.8"
+admin.site.index_title = "GMAIL SHOOTER 0.8"

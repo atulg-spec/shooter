@@ -12,7 +12,7 @@ urlpatterns = [
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     path('dashboard/', lambda request: redirect('/')),
     path('', include('dashboard.urls')),
-    path('admin/', admin.site.urls),
+    path('adminpanel/', admin.site.urls),
     path('login/', CustomLoginView.as_view(), name='custom_admin_login'),
     path('', custom_admin_site.urls),
 ]

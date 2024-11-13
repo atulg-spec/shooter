@@ -110,6 +110,10 @@ STATIC_URL = '/static/'
 # MEDIA_URL = '/media/'
 STATIC_ROOT = 'static'
 # MEDIA_ROOT = 'media'
+DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB, adjust as needed
+# Increase the number of allowed form fields to 5000 (or more based on your needs)
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
+
 MEDIA_ROOT=os.path.join(BASE_DIR,'static/media/')
 MEDIA_URL="/media/"
 CKEDITOR_UPLOAD_SLUGIFY_FILENAME = False

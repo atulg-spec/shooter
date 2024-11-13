@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db import transaction
 from .models import *
 from django.contrib import admin
 from django.contrib.auth import login
@@ -112,6 +113,11 @@ class AudienceAdmin(admin.ModelAdmin):
     
     # Adding the bulk upload functionality
     change_list_template = "admin/audience_changelist.html"  # Custom template
+
+    def delete_entries_in_batches(queryset, batch_size=1000):
+        with transaction.atomic():
+            while queryset.exists():
+                queryset[:batch_size].delete()
 
     def get_queryset(self, request):
         """Filter the queryset to show only the audience data for the current user unless they are superuser or staff."""

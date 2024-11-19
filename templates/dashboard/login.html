@@ -12,6 +12,7 @@
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
     <link href="/static/assets/css/nucleo-icons.css" rel="stylesheet" />
     <link href="/static/assets/css/nucleo-svg.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="/static/assets/css/argon-dashboard-tailwind.css?v=1.0.1" rel="stylesheet" />
 </head>
 
@@ -30,6 +31,17 @@
                                     <p class="mb-0">Enter your username and password to sign in</p>
                                 </div>
                                 <div class="flex-auto p-6">
+                                    <!-- Displaying Messages (Success or Error) -->
+                                    {% if messages %}
+                                        <div class="mb-4">
+                                            {% for message in messages %}
+                                                <div class="p-3 text-white {% if message.tags == 'error' %}bg-red-500{% else %}bg-green-500{% endif %} rounded-lg">
+                                                    {{ message }}
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    
                                     <form method="post" action="/">
                                         {% csrf_token %}
                                         <div class="mb-4">

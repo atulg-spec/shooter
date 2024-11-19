@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 from django.views.static import serve
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('adminpanel/', admin.site.urls),
     path('', include('dashboard.urls')),  # Replace `your_app_name` with the name of your app
 ]
 

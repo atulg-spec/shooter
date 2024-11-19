@@ -1,0 +1,140 @@
+{% extends 'dashboard/base.html' %}
+{% load widget_tweaks %}
+{% block body %}
+<div class="w-full px-6 py-6 mx-auto">
+    <div class="flex flex-wrap -mx-3">
+        <!-- Campaigns Section -->
+        <div class="w-full px-3">
+            <div class="relative flex flex-col bg-white dark:bg-gray-800 shadow-xl rounded-lg">
+                <!-- Header -->
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Campaigns</h2>
+                    <button 
+                        id="add-campaign-btn" 
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md transition"
+                        onclick="toggleForm()">+ Start Campaign</button>
+                </div>
+                <!-- Add Campaign Form -->
+                <div id="add-campaign-form" class="hidden px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+                    <form method="post" class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                        {% csrf_token %}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Frequency Field -->
+                            <div>
+                                <label for="frequency" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                                    Frequency
+                                </label>
+                                <div class="relative">
+                                    {{ form.frequency|add_class:"w-full px-4 py-2 text-sm border rounded-lg dark:bg-slate-800 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none" }}
+                                </div>
+                            </div>
+                    
+                            <!-- Machine IP Field -->
+                            <div>
+                                <label for="ip_address" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                                    Machine IP
+                                </label>
+                                <div class="relative">
+                                    {{ form.ip_address|add_class:"w-full px-4 py-2 text-sm border rounded-lg dark:bg-slate-800 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none" }}
+                                    <small id="ip-loading" class="text-gray-500 dark:text-gray-400 hidden">Fetching IP...</small>
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <!-- Action Buttons -->
+                        <div class="mt-6 flex items-center gap-4">
+                            <button 
+                                type="submit" 
+                                class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md transition">
+                                Save Campaign
+                            </button>
+                            <button 
+                                type="button" 
+                                class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md transition"
+                                onclick="toggleForm()">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                    
+                </div>
+                <!-- Campaign Table -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-left text-sm text-gray-500 dark:text-gray-400">
+                        <thead class="bg-gray-100 dark:bg-gray-700 text-xs uppercase text-gray-700 dark:text-gray-200">
+                            <tr>
+                                <th class="px-6 py-3 text-center">Machine</th>
+                                <th class="px-6 py-3 text-center">Status</th>
+                                <th class="px-6 py-3 text-center">Created At</th>
+                                <th class="px-6 py-3 text-center">Frequency</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for campaign in camps reversed %}
+                            <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center gap-2">
+                                        <i class="text-blue-500" data-feather="cpu"></i>
+                                        <code class="font-medium">{{ campaign.ip_address }}</code>
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <span class="px-3 py-1 rounded-full text-sm font-medium {% if campaign.status == 'created' %}bg-blue-100 text-blue-800{% elif campaign.status == 'success' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ campaign.status }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    {{ campaign.date_time|date:"M d, Y h:i A" }}
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    {{ campaign.frequency }}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="px-6 py-4 text-center text-gray-500">No campaigns found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleForm() {
+        const form = document.getElementById('add-campaign-form');
+        form.classList.toggle('hidden');
+    }
+
+    async function fetchAndFillIP() {
+        const ipField = document.querySelector('#id_ip_address');
+        const ipLoadingText = document.getElementById('ip-loading');
+
+        try {
+            // Show loading text
+            ipLoadingText.classList.remove('hidden');
+
+            // Fetch IP using an external API
+            const response = await fetch('https://api64.ipify.org?format=json');
+            const data = await response.json();
+
+            // Populate the input field with the IP
+            if (data.ip) {
+                ipField.value = data.ip;
+            }
+        } catch (error) {
+            console.error('Error fetching IP:', error);
+        } finally {
+            // Hide loading text
+            ipLoadingText.classList.add('hidden');
+        }
+    }
+
+    // Call the function when the form is displayed
+    document.getElementById('add-campaign-btn').addEventListener('click', fetchAndFillIP);
+
+</script>
+{% endblock body %}

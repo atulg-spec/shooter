@@ -1,0 +1,130 @@
+{% extends 'dashboard/base.html' %}
+{% load widget_tweaks %}
+
+{% block body %}
+<div class="w-full px-6 py-6 mx-auto">
+    <div class="flex flex-wrap -mx-3">
+        <!-- Single and Bulk Upload Section -->
+        <div class="flex-none w-full max-w-full px-3">
+            <div
+                class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 border-solid shadow-xl dark:bg-slate-850 dark:shadow-dark-xl rounded-2xl bg-clip-border">
+                <div class="p-6 pb-0 mb-0 border-b-0 border-b-solid rounded-t-2xl border-b-transparent">
+                    <div class="flex items-center">
+                        <h6 class="dark:text-white">Manage Tags and Data</h6>
+                    </div>
+                </div>
+                <div class="flex-auto px-0 pt-0 pb-2">
+                    <div class="p-6 overflow-x-auto ps">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Add Tag Form -->
+                            <div
+                                class="relative flex flex-col min-w-0 break-words bg-white border-0 border-solid shadow-md dark:bg-slate-800 dark:shadow-lg rounded-xl bg-clip-border">
+                                <div class="p-4 pb-0 border-b border-b-solid rounded-t-xl border-b-transparent">
+                                    <h6 class="text-lg font-bold dark:text-white">Add Tag</h6>
+                                </div>
+                                <div class="flex-auto p-4">
+                                    <form method="POST" action="">
+                                        {% csrf_token %}
+                                        <div class="mb-4">
+                                            <label for="tag_name" class="block mb-2 text-sm font-medium dark:text-white">Tag Name</label>
+                                            {{ tag_form.tag_name|add_class:"w-full px-4 py-2 text-sm border rounded-lg dark:bg-slate-800 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none" }}
+                                        </div>
+                                        <button type="submit" name="add_tag"
+                                            class="px-6 py-2 mt-4 bg-blue-500 text-white rounded-lg">
+                                            Add Tag
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <!-- Bulk Upload Form -->
+                            <div
+                                class="relative flex flex-col min-w-0 break-words bg-white border-0 border-solid shadow-md dark:bg-slate-800 dark:shadow-lg rounded-xl bg-clip-border">
+                                <div class="p-4 pb-0 border-b border-b-solid rounded-t-xl border-b-transparent">
+                                    <h6 class="text-lg font-bold dark:text-white">Bulk Upload Tag Data (CSV)</h6>
+                                </div>
+                                <div class="flex-auto p-4">
+                                    <form method="POST" action="" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="mb-4">
+                                            <label for="tag" class="block mb-2 text-sm font-medium dark:text-white">Select Tag</label>
+                                            {{ bulk_upload_form.tag|add_class:"w-full px-4 py-2 text-sm border rounded-lg dark:bg-slate-800 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-green-500 focus:outline-none" }}
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="file" class="block mb-2 text-sm font-medium dark:text-white">Upload CSV File</label>
+                                            {{ bulk_upload_form.file|add_class:"w-full px-4 py-2 text-sm border rounded-lg dark:bg-slate-800 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-green-500 focus:outline-none" }}
+                                        </div>
+                                        <button type="submit" name="bulk_upload"
+                                            class="px-6 py-2 mt-4 bg-green-500 text-white rounded-lg">
+                                            Upload Data
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-none w-full max-w-full px-3">
+                    <div
+                    class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 border-solid shadow-xl dark:bg-slate-850 dark:shadow-dark-xl rounded-2xl bg-clip-border">
+    
+                <div class="p-6 pb-0 mb-0 border-b-0 border-b-solid rounded-t-2xl border-b-transparent">
+                    <div class="flex items-center">
+                        <h6 class="dark:text-white">Custom tags</h6>
+                    </div>
+                </div>
+                <div class="flex-auto px-0 pt-0 pb-2">
+                    <div class="p-0 overflow-x-auto ps">
+                        <table
+                            class="items-center w-full mb-8 align-top border-collapse dark:border-white/40 text-slate-500">
+                            <thead class="align-bottom">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 dark:text-white text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">
+                                        Tags</th>
+                                    <th
+                                        class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 dark:text-white text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">
+                                        </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tag in tagz reversed %}
+                                <tr>
+                                    <td
+                                        class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
+                                        <div class="flex px-2 py-1">
+                                            <div class="flex flex-col justify-center">
+                                                <h6 class="mb-0 text-sm leading-normal dark:text-white font-bold">
+                                                    <a href="/tags/{{tag.id}}/show-data/">
+                                                    <code>{{tag.tag_name}}</code>
+                                                    </a>
+                                                </h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td
+                                        class="p-2 text-sm leading-normal align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
+                                        <a href="/tags/{{tag.id}}/delete/"
+                                            class="bg-gradient-to-tl from-red-500 to-red-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">
+                                            Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <div class="ps__rail-x" style="left: 0px; bottom: 0px;">
+                            <div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div>
+                        </div>
+                        <div class="ps__rail-y" style="top: 0px; right: 0px;">
+                            <div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 0px;"></div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock body %}

@@ -1,235 +1,55 @@
 from django.contrib import admin
-from django.db import transaction
-from .models import *
-from django.contrib import admin
-from django.contrib.auth import login
-from django.contrib import messages  # Import messages for notifications
-from django.contrib.auth.views import LoginView
-from django.urls import path
-from django.shortcuts import redirect
-from django.template.response import TemplateResponse
-import csv
-from .forms import EmailAccountsBulkUploadForm, AudienceBulkUploadForm
-from django.conf import settings
+from .models import EmailAccounts, AudienceData, Tags, tags_data, Messages, Campaign
 
-# Custom login view
-class CustomLoginView(LoginView):
-    template_name = 'admin/login.html'
-
-    def form_valid(self, form):
-        login(self.request, form.get_user())
-        return redirect(settings.LOGIN_REDIRECT_URL or '/')
-
-
-# Custom admin site to allow all authenticated users to access admin
-class CustomAdminSite(admin.AdminSite):
-    def has_permission(self, request):
-        return request.user.is_authenticated  # Allow any authenticated user to access
-
-    def has_module_permission(self, request):
-        return request.user.is_authenticated  # Allow any authenticated user to see the modules
-
-custom_admin_site = CustomAdminSite(name='custom_admin')
-
-
+@admin.register(EmailAccounts)
 class EmailAccountsAdmin(admin.ModelAdmin):
-    list_display = ('email', 'password',)
+    list_display = ('email', 'user')
     search_fields = ('email',)
-    
-    # Adding the bulk upload functionality
-    change_list_template = "admin/email_accounts_changelist.html"  # Custom template
+    list_filter = ('user',)
+    ordering = ('email',)
 
-    def get_queryset(self, request):
-        """Filter the queryset to show only the audience data for the current user unless they are superuser or staff."""
-        qs = super().get_queryset(request)
-        if request.user.is_superuser or request.user.is_staff:
-            return qs  # Superusers and staff can see all data
-        return qs.filter(user=request.user)  # Regular users only see their data
-
-    def save_model(self, request, obj, form, change):
-        if not obj.user_id:
-            obj.user = request.user  # Set the current logged-in user
-        super().save_model(request, obj, form, change)
-
-    def has_view_permission(self, request, obj=None):
-        return request.user.is_authenticated
-
-    def has_add_permission(self, request):
-        return request.user.is_authenticated
-
-    def has_change_permission(self, request, obj=None):
-        return request.user.is_authenticated
-
-    def has_delete_permission(self, request, obj=None):
-        return True
-
-    # Custom view for bulk upload
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path('bulk-upload/', self.bulk_upload, name='email_accounts_bulk_upload'),
-        ]
-        return custom_urls + urls
-
-    def bulk_upload(self, request):
-        if request.method == "POST":
-            form = EmailAccountsBulkUploadForm(request.POST, request.FILES)
-            if form.is_valid():
-                csv_file = form.cleaned_data["csv_file"]
-                decoded_file = csv_file.read().decode('utf-8').splitlines()
-                reader = csv.reader(decoded_file)
-
-                # Loop through each row in the CSV
-                for row in reader:
-                    if len(row) >= 2:
-                        email = row[0].strip()  # Extract the email
-                        password = row[1].strip()  # Extract the password
-                        if email == '' or password == '':
-                            messages.error(request, f"Skipping invalid row: {row}")
-                        else:
-                            EmailAccounts.objects.create(
-                                user=request.user,  # Set the current logged-in user as owner
-                                email=email,
-                                password=password,
-                            )
-                    else:
-                        messages.error(request, f"Skipping invalid row: {row}")
-                messages.success(request, "Email accounts uploaded successfully.")
-                return redirect("/dashboard/emailaccounts/")
-        form = EmailAccountsBulkUploadForm()
-        context = {
-            'form': form,
-            'opts': self.model._meta,
-            'app_label': self.model._meta.app_label,
-        }
-        return TemplateResponse(request, "admin/email_accounts_bulk_upload.html", context)
-
-custom_admin_site.register(EmailAccounts, EmailAccountsAdmin)
-admin.site.register(EmailAccounts, EmailAccountsAdmin)
-
-class AudienceAdmin(admin.ModelAdmin):
-    list_display = ('email',)
+@admin.register(AudienceData)
+class AudienceDataAdmin(admin.ModelAdmin):
+    list_display = ('email', 'user')
     search_fields = ('email',)
-    
-    # Adding the bulk upload functionality
-    change_list_template = "admin/audience_changelist.html"  # Custom template
+    list_filter = ('user',)
 
-    def delete_entries_in_batches(queryset, batch_size=1000):
-        with transaction.atomic():
-            while queryset.exists():
-                queryset[:batch_size].delete()
+@admin.register(Tags)
+class TagsAdmin(admin.ModelAdmin):
+    list_display = ('tag_name', 'user')
+    search_fields = ('tag_name',)
+    list_filter = ('user',)
 
-    def get_queryset(self, request):
-        """Filter the queryset to show only the audience data for the current user unless they are superuser or staff."""
-        qs = super().get_queryset(request)
-        if request.user.is_superuser or request.user.is_staff:
-            return qs  # Superusers and staff can see all data
-        return qs.filter(user=request.user)  # Regular users only see their data
+@admin.register(tags_data)
+class TagsDataAdmin(admin.ModelAdmin):
+    list_display = ('tag', 'data','user')
+    search_fields = ('data','user')
+    list_filter = ('tag','user')
 
-    def save_model(self, request, obj, form, change):
-        if not obj.user_id:
-            obj.user = request.user  # Set the current logged-in user
-        super().save_model(request, obj, form, change)
+@admin.register(Messages)
+class MessagesAdmin(admin.ModelAdmin):
+    list_display = ('subject', 'user','format_type')
+    search_fields = ('subject', 'content','format_type')
+    list_filter = ('user','format_type')
 
-    def has_view_permission(self, request, obj=None):
-        return request.user.is_authenticated
-
-    def has_add_permission(self, request):
-        return request.user.is_authenticated
-
-    def has_change_permission(self, request, obj=None):
-        return request.user.is_authenticated
-
-    def has_delete_permission(self, request, obj=None):
-        return True
-
-    # Custom view for bulk upload
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path('audience-bulk-upload/', self.bulk_upload, name='audience_bulk_upload'),
-        ]
-        return custom_urls + urls
-
-    def bulk_upload(self, request):
-        if request.method == "POST":
-            form = AudienceBulkUploadForm(request.POST, request.FILES)
-            if form.is_valid():
-                csv_file = form.cleaned_data["csv_file"]
-                decoded_file = csv_file.read().decode('utf-8').splitlines()
-                reader = csv.reader(decoded_file)
-
-                # Loop through each row in the CSV
-                for row in reader:
-                    if len(row) >= 2:
-                        email = row[0].strip()  # Extract the email
-                        if email == '':
-                            messages.error(request, f"Skipping invalid row: {row}")
-                        else:
-                            AudienceData.objects.create(
-                                user=request.user,  # Set the current logged-in user as owner
-                                email=email,
-                            )
-                    else:
-                        messages.error(request, f"Skipping invalid row: {row}")
-                messages.success(request, "Audience data uploaded successfully.")
-                return redirect("/dashboard/audiencedata/")
-
-        form = AudienceBulkUploadForm()
-        context = {
-            'form': form,
-            'opts': self.model._meta,
-            'app_label': self.model._meta.app_label,
-        }
-        return TemplateResponse(request, "admin/audience_bulk_upload.html", context)
-
-custom_admin_site.register(AudienceData, AudienceAdmin)
-admin.site.register(AudienceData, AudienceAdmin)
-
-
-class MessageAdmin(admin.ModelAdmin):
-    list_display = ('subject',)
-    
-    def get_queryset(self, request):
-        """Filter the queryset to show only the audience data for the current user unless they are superuser or staff."""
-        qs = super().get_queryset(request)
-        if request.user.is_superuser or request.user.is_staff:
-            return qs  # Superusers and staff can see all data
-        return qs.filter(user=request.user)  # Regular users only see their data
-    # Adding the bulk upload functionality
-    def save_model(self, request, obj, form, change):
-        if not obj.user_id:
-            obj.user = request.user  # Set the current logged-in user
-        super().save_model(request, obj, form, change)
-
-    def has_view_permission(self, request, obj=None):
-        return request.user.is_authenticated
-
-    def has_add_permission(self, request):
-        return request.user.is_authenticated
-
-    def has_change_permission(self, request, obj=None):
-        return request.user.is_authenticated
-
-    def has_delete_permission(self, request, obj=None):
-        return True
-
-custom_admin_site.register(Messages, MessageAdmin)
-admin.site.register(Messages, MessageAdmin)
-
-
+@admin.register(Campaign)
 class CampaignAdmin(admin.ModelAdmin):
-    list_filter = ('user', 'status', 'ip_address','date_time')
-    readonly_fields = ('user', 'frequency', 'status', 'ip_address','date_time')
+    list_display = ('user', 'status', 'frequency', 'ip_address', 'date_time')
+    search_fields = ('ip_address', 'user__username')
+    list_filter = ('status', 'date_time')
+    ordering = ('-date_time',)
 
-    def get_queryset(self, request):
-        """Filter the queryset to show only the audience data for the current user unless they are superuser or staff."""
-        qs = super().get_queryset(request)
-        if request.user.is_superuser or request.user.is_staff:
-            return qs  # Superusers and staff can see all data
-        return qs.filter(user=request.user)  # Regular users only see their data
+# Inline Configurations
+class TagsDataInline(admin.TabularInline):
+    model = tags_data
+    extra = 1
 
-admin.site.register(Campaign, CampaignAdmin)
+class TagsAdminWithInline(TagsAdmin):
+    inlines = [TagsDataInline]
+
+# Admin overrides for inline demonstration
+admin.site.unregister(Tags)
+admin.site.register(Tags, TagsAdminWithInline)
 
 admin.site.site_header = "GMAIL SHOOTER 0.8"
 admin.site.site_title = "GMAIL SHOOTER 0.8"

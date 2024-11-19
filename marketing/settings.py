@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'widget_tweaks',
     'dashboard',
 ]
 CRISPY_TEMPLATE_PACK = 'bootstrap4'  
@@ -119,18 +120,18 @@ MEDIA_URL="/media/"
 CKEDITOR_UPLOAD_SLUGIFY_FILENAME = False
 CKEDITOR_UPLOAD_PATH = os.path.join(MEDIA_ROOT, "ckeditor")
 
-#STATICFILES_DIRS = (
-#    os.path.join(BASE_DIR, 'static'),
-#)
+# STATICFILES_DIRS = (
+#     os.path.join(BASE_DIR, 'static'),
+# )
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_URL = '/login'
+LOGIN_URL = '/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL='/logout'
-LOGOUT_REDIRECT_URL = '/login'
+LOGOUT_REDIRECT_URL = '/'
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -142,7 +143,7 @@ EMAIL_USE_TLS = True
 
 
 JAZZMIN_SETTINGS = {
-    "site_logo": 'images/logo.png',
-    "login_logo": 'images/logo.png',
+    "site_logo": 'assets/img/logo.png',
+    "login_logo": 'assets/img/logo.png',
     "site_logo_classes":'img-circle',
 }

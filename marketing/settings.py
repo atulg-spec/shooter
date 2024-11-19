@@ -93,10 +93,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'Asia/Kolkata'
@@ -105,14 +101,15 @@ USE_I18N = True
 
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
 STATIC_URL = '/static/'
-# MEDIA_URL = '/media/'
-STATIC_ROOT = 'static'
-# MEDIA_ROOT = 'media'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
+
+
 DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB, adjust as needed
-# Increase the number of allowed form fields to 5000 (or more based on your needs)
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 
 MEDIA_ROOT=os.path.join(BASE_DIR,'static/media/')
@@ -120,19 +117,12 @@ MEDIA_URL="/media/"
 CKEDITOR_UPLOAD_SLUGIFY_FILENAME = False
 CKEDITOR_UPLOAD_PATH = os.path.join(MEDIA_ROOT, "ckeditor")
 
-# STATICFILES_DIRS = (
-#     os.path.join(BASE_DIR, 'static'),
-# )
-# Default primary key field type
-# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL='/logout'
 LOGOUT_REDIRECT_URL = '/'
-
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -146,4 +136,23 @@ JAZZMIN_SETTINGS = {
     "site_logo": 'assets/img/logo.png',
     "login_logo": 'assets/img/logo.png',
     "site_logo_classes":'img-circle',
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'debug.log'),
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
 }

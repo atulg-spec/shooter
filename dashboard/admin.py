@@ -1,26 +1,20 @@
 from django.contrib import admin
 from .models import EmailAccounts, AudienceData, Tags, tags_data, Messages, Campaign
-from django import forms
-from django.contrib.auth.models import User, Permission
-from django.contrib.auth.forms import UserChangeForm
+from django.contrib.auth.models import User
+from django.contrib.auth.admin import UserAdmin
+from .forms import CustomUserChangeForm
 
-class CustomUserChangeForm(UserChangeForm):
-    class Meta:
-        model = User
-        fields = '__all__'
-
-    permissions = forms.ModelMultipleChoiceField(
-        queryset=Permission.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=False
+# Customizing the UserAdmin
+class CustomUserAdmin(UserAdmin):
+    form = CustomUserChangeForm
+    # Optionally, you can modify the fieldsets to include the permissions field
+    fieldsets = UserAdmin.fieldsets + (
+        (None, {'fields': ('permissions',)}),
     )
 
-class UserAdmin(admin.ModelAdmin):
-    form = CustomUserChangeForm
-
+# Register the custom UserAdmin
 admin.site.unregister(User)
-admin.site.register(User, UserAdmin)
-
+admin.site.register(User, CustomUserAdmin)
 
 @admin.register(EmailAccounts)
 class EmailAccountsAdmin(admin.ModelAdmin):

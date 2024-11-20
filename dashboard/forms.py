@@ -4,6 +4,20 @@ from crispy_forms.layout import Submit
 from django import forms
 from .models import *
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.models import Permission
+from django.contrib.auth.forms import UserChangeForm
+
+class CustomUserChangeForm(UserChangeForm):
+    permissions = forms.ModelMultipleChoiceField(
+        queryset=Permission.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
+    class Meta:
+        model = User
+        fields = '__all__'
+
 
 class LoginForm(forms.Form):
     username = forms.CharField(label="Username or Email",max_length=255, widget=forms.TextInput(attrs={'class': 'form-control'}))

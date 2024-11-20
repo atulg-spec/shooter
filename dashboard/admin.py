@@ -1,5 +1,26 @@
 from django.contrib import admin
 from .models import EmailAccounts, AudienceData, Tags, tags_data, Messages, Campaign
+from django import forms
+from django.contrib.auth.models import User, Permission
+from django.contrib.auth.forms import UserChangeForm
+
+class CustomUserChangeForm(UserChangeForm):
+    class Meta:
+        model = User
+        fields = '__all__'
+
+    permissions = forms.ModelMultipleChoiceField(
+        queryset=Permission.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
+class UserAdmin(admin.ModelAdmin):
+    form = CustomUserChangeForm
+
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)
+
 
 @admin.register(EmailAccounts)
 class EmailAccountsAdmin(admin.ModelAdmin):

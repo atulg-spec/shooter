@@ -88,6 +88,9 @@ class Messages(models.Model):
         if self.format_type == 'HTML_IMG' and self.attachment and not self.attachment.name.lower().endswith(('png', 'jpg', 'jpeg')):
             raise ValidationError("Attachment must be an image file for HTML_IMG format.")
         
+        if self.format_type == 'HTML_TO_IMG' and (not self.content or not self.attachment_content):
+            raise ValidationError("HTML content and an image attachment content are required for HTML_TO_IMG format.")
+        
         if self.format_type == 'PDF' and not self.attachment:
             raise ValidationError("A PDF attachment is required for PDF format.")
         
@@ -97,8 +100,8 @@ class Messages(models.Model):
         if self.format_type == 'IMG_TO_PDF' and self.attachment and not self.attachment.name.lower().endswith(('png', 'jpg', 'jpeg')):
             raise ValidationError("Attachment must be an image file for IMG_TO_PDF format.")
 
-        if self.format_type == 'HTML_TO_IMG_TO_PDF' and (not self.content or not self.attachment):
-            raise ValidationError("HTML content and an image attachment are required for HTML_TO_IMG_TO_PDF format.")
+        if self.format_type == 'HTML_TO_IMG_TO_PDF' and (not self.content or not self.attachment_content):
+            raise ValidationError("HTML content and an image attachment content are required for HTML_TO_IMG_TO_PDF format.")
 
     def __str__(self):
         return self.subject

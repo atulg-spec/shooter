@@ -6,13 +6,17 @@ from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render,redirect
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import *
 from django.contrib import messages
 import csv
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
+
+def handlelogout(request):
+    logout(request)
+    messages.success(request,"Logged out Successfully")
+    return redirect('/')
 
 def handlelogin(request):
     if request.user.is_authenticated:
@@ -83,6 +87,56 @@ def email_account_create(request):
         form = EmailAccountsForm()
     return render(request, 'dashboard/add-account.html', {'form': form})
 
+
+@login_required
+def email_account_bulk_upload(request):
+    if request.method == 'POST' and request.FILES.get('csv_file'):
+        file = request.FILES['csv_file']
+        
+        # Validate file extension
+        if not file.name.endswith('.csv'):
+            messages.error(request, "Only CSV files are allowed.")
+            return redirect('/email-accounts')
+        
+        try:
+            # Read and process CSV file
+            decoded_file = file.read().decode('utf-8').splitlines()
+            reader = csv.DictReader(decoded_file)
+            
+            # Ensure required columns are present
+            required_columns = ['email', 'password']
+            if not all(col in reader.fieldnames for col in required_columns):
+                messages.error(request, f"The CSV file must contain the following columns: {', '.join(required_columns)}.")
+                return redirect('/email-accounts')
+            
+            # Process each row
+            for row in reader:
+                email = row.get('email', '').strip()
+                password = row.get('password', '').strip()
+                
+                # Validate email and password fields
+                if not email or not password:
+                    messages.error(request, "Each row must have non-empty 'email' and 'password' fields.")
+                    return redirect('/email-accounts')
+                
+                # Save to the database
+                EmailAccounts.objects.create(
+                    user=request.user,
+                    email=email,
+                    password=password
+                )
+            
+            # Success message
+            messages.success(request, "Bulk upload completed successfully.")
+            return redirect('/email-accounts')
+        
+        except Exception as e:
+            messages.error(request, f"An error occurred: {str(e)}")
+            return redirect('/email-accounts')
+    
+    return render(request, 'dashboard/add-account.html')
+
+
 @login_required
 def email_account_delete(request, pk):
     email_account = get_object_or_404(EmailAccounts, pk=pk, user=request.user)
@@ -98,6 +152,17 @@ def email_accounts(request):
         'accounts':accounts,
     }
     return render(request,'dashboard/email_accounts.html',context)
+
+@login_required
+def email_accounts_delete_all(request):
+    try:
+        EmailAccounts.objects.filter(user=request.user).delete()
+        messages.error(request,f'Some error occured {e}')
+    except Exception as e:
+        messages.error(request,f'All data deleted successfully ! ')
+    return redirect('/email-accounts/')
+
+
 
 @login_required
 def audiences(request):
@@ -171,6 +236,51 @@ def maillist(request):
     return render(request,'dashboard/mails.html',context)
 
 @login_required
+def edit_message(request, pk):
+    # Get the message object
+    message_instance = get_object_or_404(Messages, id=pk, user=request.user)
+
+    # Check permissions for the format_type
+    PERMISSION_MAP = {
+        'HTML': 'dashboard.can_use_html',
+        'HTML_IMG': 'dashboard.can_use_html_img',
+        'HTML_TO_IMG': 'dashboard.can_use_html_to_img',
+        'PDF': 'dashboard.can_use_pdf',
+        'IMG_TO_PDF': 'dashboard.can_use_img_to_pdf',
+        'HTML_TO_PDF': 'dashboard.can_use_html_to_pdf',
+        'HTML_TO_IMG_TO_PDF': 'dashboard.can_use_html_to_img_to_pdf',
+    }
+
+    permission_key = PERMISSION_MAP.get(message_instance.format_type)
+    if permission_key and not request.user.has_perm(permission_key):
+        messages.error(request, f"You do not have permission to edit messages of type {message_instance.format_type}.")
+        return redirect('/mails/')  # Redirect to appropriate page if no permission
+
+    if request.method == "POST":
+        form = EditMessageForm(request.POST, request.FILES, instance=message_instance)
+        if form.is_valid():
+            try:
+                instance = form.save(commit=False)
+                instance.clean()  # Run model-level validation
+                instance.save()
+                messages.success(request, "Message updated successfully!")
+                return redirect('/mails/')  # Replace with the appropriate redirect URL
+            except ValidationError as e:
+                form.add_error(None, e.message)
+                for error in e.messages:
+                    messages.error(request, error)
+        else:
+            messages.error(request, "Please fix the errors below.")
+    else:
+        form = EditMessageForm(instance=message_instance)
+
+    return render(request, 'dashboard/edit-message.html', {
+        'form': form,
+        'message': message_instance,
+    })
+
+
+@login_required
 def upload_messages(request):
     single_form = SingleMessageForm()
     bulk_form = BulkMessageUploadForm()
@@ -181,6 +291,21 @@ def upload_messages(request):
             single_form = SingleMessageForm(request.POST, request.FILES)
             if single_form.is_valid():
                 instance = single_form.save(commit=False)
+
+                # Permission check based on format_type
+                PERMISSION_MAP = {
+                    'HTML': 'dashboard.can_use_html',
+                    'HTML_IMG': 'dashboard.can_use_html_img',
+                    'HTML_TO_IMG': 'dashboard.can_use_html_to_img',
+                    'PDF': 'dashboard.can_use_pdf',
+                    'IMG_TO_PDF': 'dashboard.can_use_img_to_pdf',
+                    'HTML_TO_PDF': 'dashboard.can_use_html_to_pdf',
+                    'HTML_TO_IMG_TO_PDF': 'dashboard.can_use_html_to_img_to_pdf',
+                }
+                permission_key = PERMISSION_MAP.get(instance.format_type)
+                if permission_key and not request.user.has_perm(permission_key):
+                    messages.error(request, f"You do not have permission to upload messages of type {instance.format_type}.")
+                    return redirect('/mails/')  # Redirect if user lacks permission
 
                 try:
                     instance.user = request.user
@@ -193,7 +318,7 @@ def upload_messages(request):
                     for error in e.messages:
                         messages.error(request, error)
             else:
-                messages.error(request,single_form.errors)
+                messages.error(request, single_form.errors)
         # Bulk Upload
         elif 'bulk_upload' in request.POST:
             bulk_form = BulkMessageUploadForm(request.POST, request.FILES)

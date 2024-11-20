@@ -5,13 +5,15 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('', views.handlelogin, name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('logout/', views.handlelogout, name='logout'),
     path('register/', views.register, name='register'),
     path('home/', views.home, name='home'),
     # EMAIL ACCOUNTS
     path('email-accounts/', views.email_accounts, name='email-accounts'),
     path('add-account/', views.email_account_create, name='add-account'),
+    path('add-account-bulk/', views.email_account_bulk_upload, name='email_account_bulk_upload'),
     path('email-account/<int:pk>/delete/', views.email_account_delete, name='email_account_delete'),
+    path('email-accounts/delete-all/', views.email_accounts_delete_all, name='email_accounts_delete_all'),
     # END EMAIL ACCOUNTS
     # Audiences
     path('audiences/', views.audiences, name='audiences'),
@@ -22,6 +24,7 @@ urlpatterns = [
     # mails
     path('mails/', views.maillist, name='maillist'),
     path('add-mails/', views.upload_messages, name='add-mails'),
+    path('mails/<int:pk>/edit/', views.edit_message, name='edit_message'),
     path('mails/<int:pk>/delete/', views.mails_delete, name='delete_mail'),
     path('mails/delete-all/', views.mails_delete_all, name='mails_delete_all'),
     # end mails

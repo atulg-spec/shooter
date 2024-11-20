@@ -1,0 +1,67 @@
+{% extends 'dashboard/base.html' %}
+{% load widget_tweaks %}
+
+{% block body %}
+<div class="w-full px-6 py-6 mx-auto">
+    <div class="flex flex-wrap -mx-3">
+        <!-- Edit Message Section -->
+        <div class="flex-none w-full max-w-full px-3">
+            <div
+                class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 border-transparent border-solid shadow-xl dark:bg-slate-850 dark:shadow-dark-xl rounded-2xl bg-clip-border">
+                <div class="p-6 pb-0 mb-0 border-b-0 border-b-solid rounded-t-2xl border-b-transparent">
+                    <div class="flex items-center">
+                        <h6 class="dark:text-white">Edit Message</h6>
+                        <div class="inline-block px-8 py-2 mb-4 ml-auto rounded-lg">
+                            <a href="/mails/" class="inline-block px-8 py-2 mb-4 ml-auto font-bold text-white bg-blue-500 rounded-lg">
+                                View All Messages
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-auto px-0 pt-0 pb-2">
+                    <div class="p-6 overflow-x-auto ps">
+                        <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
+                            <!-- Edit Message Form -->
+                            <div
+                                class="relative flex flex-col min-w-0 break-words bg-white border-0 border-solid shadow-md dark:bg-slate-800 dark:shadow-lg rounded-xl bg-clip-border">
+                                <div class="p-4 pb-0 border-b border-b-solid rounded-t-xl border-b-transparent">
+                                    <h6 class="text-lg font-bold dark:text-white">Edit Message</h6>
+                                </div>
+                                <div class="flex-auto p-4">
+                                    <form method="POST" action="{% url 'edit_message' message.id %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="mb-4">
+                                            <label for="subject" class="block mb-2 text-sm font-medium dark:text-white">Subject</label>
+                                            {{ form.subject|add_class:"w-full px-4 py-2 text-sm border rounded-lg dark:bg-slate-800 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none" }}
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="content" class="block mb-2 text-sm font-medium dark:text-white">Content</label>
+                                            {{ form.content|add_class:"w-full px-4 py-2 text-sm border rounded-lg dark:bg-slate-800 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none" }}
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="format_type" class="block mb-2 text-sm font-medium dark:text-white">Format Type</label>
+                                            {{ form.format_type|add_class:"w-full px-4 py-2 text-sm border rounded-lg dark:bg-slate-800 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none" }}
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="attachment" class="block mb-2 text-sm font-medium dark:text-white">Attachment</label>
+                                            {{ form.attachment|add_class:"w-full px-4 py-2 text-sm border rounded-lg dark:bg-slate-800 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none" }}
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="attachment_content" class="block mb-2 text-sm font-medium dark:text-white">Attachment Content</label>
+                                            {{ form.attachment_content|add_class:"w-full px-4 py-2 text-sm border rounded-lg dark:bg-slate-800 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none" }}
+                                        </div>
+                                        <button type="submit"
+                                            class="px-6 py-2 mt-4 bg-blue-500 text-white rounded-lg">
+                                            Update Message
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock body %}

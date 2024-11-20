@@ -67,6 +67,7 @@ class Messages(models.Model):
         ('HTML_TO_IMG', 'HTML to Image Conversion'),
         ('PDF', 'PDF Attachment'),
         ('IMG_TO_PDF', 'Image to PDF Conversion'),
+        ('HTML_TO_PDF', 'HTML to PDF Conversion'),
         ('HTML_TO_IMG_TO_PDF', 'HTML to Image to PDF'),
     ]
 
@@ -102,13 +103,26 @@ class Messages(models.Model):
 
         if self.format_type == 'HTML_TO_IMG_TO_PDF' and (not self.content or not self.attachment_content):
             raise ValidationError("HTML content and an image attachment content are required for HTML_TO_IMG_TO_PDF format.")
-
+        
+        if self.format_type == 'HTML_TO_PDF' and (not self.content or not self.attachment_content):
+            raise ValidationError("HTML content and an PDF attachment content are required for HTML_TO_PDF format.")
+        
     def __str__(self):
         return self.subject
 
     class Meta:
         verbose_name = "Message"
         verbose_name_plural = "Messages"
+        permissions = [
+            ("can_use_html", "Can use HTML Message Only"),
+            ("can_use_html_img", "Can use HTML with Image Attachment"),
+            ("can_use_html_to_img", "Can use HTML to Image Conversion"),
+            ("can_use_pdf", "Can use PDF Attachment"),
+            ("can_use_img_to_pdf", "Can use Image to PDF Conversion"),
+            ("can_use_html_to_pdf", "Can use HTML to PDF Conversion"),
+            ("can_use_html_to_img_to_pdf", "Can use HTML to Image to PDF Conversion"),
+        ]
+
 
 
 class Campaign(models.Model):

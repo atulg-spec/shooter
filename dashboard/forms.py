@@ -58,6 +58,12 @@ class SingleMessageForm(forms.ModelForm):
         model = Messages
         fields = ['subject', 'content','format_type','attachment','attachment_content']
 
+class EditMessageForm(forms.ModelForm):
+    class Meta:
+        model = Messages
+        fields = ['subject', 'content', 'format_type', 'attachment_content', 'attachment']
+
+
 class BulkMessageUploadForm(forms.Form):
     csv_file = forms.FileField()
 

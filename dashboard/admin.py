@@ -4,7 +4,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-admin.site.register(Permission)
+# admin.site.register(Permission)
 
 @admin.register(SoftwarePermissions)
 class SoftwarePermissionsAdmin(admin.ModelAdmin):

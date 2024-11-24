@@ -1,43 +1,24 @@
 from django.contrib import admin
-from .models import EmailAccounts, AudienceData, Tags, tags_data, Messages, Campaign
+from .models import *
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth.models import User, Permission
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-# Custom form for the User model
-class CustomUserChangeForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = '__all__'
+admin.site.register(Permission)
 
-    # Customize the permissions field
-    permissions = forms.ModelMultipleChoiceField(
-        queryset=Permission.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=False,
-        label=_("User Permissions"),
-    )
-
-# Custom UserAdmin class
-class CustomUserAdmin(BaseUserAdmin):
-    form = CustomUserChangeForm
-
-    # Optionally customize the fieldsets to include the permissions field
+@admin.register(SoftwarePermissions)
+class SoftwarePermissionsAdmin(admin.ModelAdmin):
+    list_display = ('user',)
+    search_fields = ('user__username',)
+    list_filter = ('permissions',)
     fieldsets = (
-        (None, {'fields': ('username', 'password')}),
-        (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
-        (_('Permissions'), {
-            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'permissions'),
+        (None, {
+            'fields': ('user', 'permissions')
         }),
-        (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
 
-# Unregister the default User admin
-admin.site.unregister(User)
-
-# Register the custom User admin
-admin.site.register(User, CustomUserAdmin)
+    def get_queryset(self, request):
+        return super().get_queryset(request)
 
 
 @admin.register(EmailAccounts)
@@ -73,9 +54,9 @@ class MessagesAdmin(admin.ModelAdmin):
 
 @admin.register(Campaign)
 class CampaignAdmin(admin.ModelAdmin):
-    list_display = ('user', 'status', 'frequency', 'ip_address', 'date_time')
+    list_display = ('user', 'status', 'frequency', 'sending_from', 'ip_address', 'date_time')
     search_fields = ('ip_address', 'user__username')
-    list_filter = ('status', 'date_time')
+    list_filter = ('status', 'date_time', 'sending_from')
     ordering = ('-date_time',)
 
 # Inline Configurations

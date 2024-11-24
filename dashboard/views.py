@@ -242,19 +242,28 @@ def edit_message(request, pk):
 
     # Check permissions for the format_type
     PERMISSION_MAP = {
-        'HTML': 'dashboard.can_use_html',
-        'HTML_IMG': 'dashboard.can_use_html_img',
-        'HTML_TO_IMG': 'dashboard.can_use_html_to_img',
-        'PDF': 'dashboard.can_use_pdf',
-        'IMG_TO_PDF': 'dashboard.can_use_img_to_pdf',
-        'HTML_TO_PDF': 'dashboard.can_use_html_to_pdf',
-        'HTML_TO_IMG_TO_PDF': 'dashboard.can_use_html_to_img_to_pdf',
+        'HTML': 'can_use_html',
+        'HTML_IMG': 'can_use_html_img',
+        'HTML_TO_IMG': 'can_use_html_to_img',
+        'PDF': 'can_use_pdf',
+        'IMG_TO_PDF': 'can_use_img_to_pdf',
+        'HTML_TO_PDF': 'can_use_html_to_pdf',
+        'HTML_TO_IMG_TO_PDF': 'can_use_html_to_img_to_pdf',
     }
 
-    permission_key = PERMISSION_MAP.get(message_instance.format_type)
-    if permission_key and not request.user.has_perm(permission_key):
-        messages.error(request, f"You do not have permission to edit messages of type {message_instance.format_type}.")
-        return redirect('/mails/')  # Redirect to appropriate page if no permission
+    permission_key = message_instance.format_type
+
+    if permission_key:
+        # Get the SoftwarePermissions object for the current user
+        try:
+            software_permissions = SoftwarePermissions.objects.get(user=request.user)
+        except SoftwarePermissions.DoesNotExist:
+            software_permissions = None
+
+        # If no software permissions found or the user doesn't have the required permission
+        if not software_permissions or permission_key not in [perm.name for perm in software_permissions.permissions.all()]:
+            messages.error(request, f"You do not have permission to edit messages of type {message_instance.format_type}.")
+            return redirect('/mails/')  # Redirect to appropriate page if no permission
 
     if request.method == "POST":
         form = EditMessageForm(request.POST, request.FILES, instance=message_instance)
@@ -294,18 +303,28 @@ def upload_messages(request):
 
                 # Permission check based on format_type
                 PERMISSION_MAP = {
-                    'HTML': 'dashboard.can_use_html',
-                    'HTML_IMG': 'dashboard.can_use_html_img',
-                    'HTML_TO_IMG': 'dashboard.can_use_html_to_img',
-                    'PDF': 'dashboard.can_use_pdf',
-                    'IMG_TO_PDF': 'dashboard.can_use_img_to_pdf',
-                    'HTML_TO_PDF': 'dashboard.can_use_html_to_pdf',
-                    'HTML_TO_IMG_TO_PDF': 'dashboard.can_use_html_to_img_to_pdf',
+                    'HTML': 'can_use_html',
+                    'HTML_IMG': 'can_use_html_img',
+                    'HTML_TO_IMG': 'can_use_html_to_img',
+                    'PDF': 'can_use_pdf',
+                    'IMG_TO_PDF': 'can_use_img_to_pdf',
+                    'HTML_TO_PDF': 'can_use_html_to_pdf',
+                    'HTML_TO_IMG_TO_PDF': 'can_use_html_to_img_to_pdf',
                 }
                 permission_key = PERMISSION_MAP.get(instance.format_type)
-                if permission_key and not request.user.has_perm(permission_key):
-                    messages.error(request, f"You do not have permission to upload messages of type {instance.format_type}.")
-                    return redirect('/mails/')  # Redirect if user lacks permission
+
+                if permission_key:
+                    # Get the SoftwarePermissions object for the current user
+                    try:
+                        software_permissions = SoftwarePermissions.objects.get(user=request.user)
+                    except SoftwarePermissions.DoesNotExist:
+                        software_permissions = None
+
+
+                    # If no software permissions found or the user doesn't have the required permission
+                    if not software_permissions or instance.format_type not in [per.name for per in software_permissions.permissions.all()]:
+                        messages.error(request, f"You do not have permission to upload messages of type {instance.format_type}.")
+                        return redirect('/mails/')  # Redirect if user lacks permission
 
                 try:
                     instance.user = request.user
@@ -319,28 +338,40 @@ def upload_messages(request):
                         messages.error(request, error)
             else:
                 messages.error(request, single_form.errors)
+
         # Bulk Upload
         elif 'bulk_upload' in request.POST:
             bulk_form = BulkMessageUploadForm(request.POST, request.FILES)
             if bulk_form.is_valid():
                 csv_file = request.FILES['csv_file']
                 decoded_file = csv_file.read().decode('utf-8').splitlines()
-                reader = csv.DictReader(decoded_file)
-
+                reader = csv.reader(decoded_file)
                 messages_to_create = []
-                for row in reader:
-                    message = Messages(
-                        user=request.user,
-                        subject=row.get('subject', ''),
-                        content=row.get('content', ''),
-                        format_type=row.get('format_type', 'HTML'),
-                    )
-                    try:
-                        message.clean()  # Run model-level validation
-                        messages_to_create.append(message)
-                    except ValidationError as e:
-                        messages.error(request, f"Error in row {reader.line_num}: {e.message}")
+                try:
+                    software_permissions = SoftwarePermissions.objects.get(user=request.user)
+                except SoftwarePermissions.DoesNotExist:
+                    software_permissions = None
 
+                for row in reader:
+                    if row[2].strip():
+                        if not software_permissions or row[2].strip() not in [perm.name for perm in software_permissions.permissions.all()]:
+                            messages.error(request, f"You do not have permission to upload messages of type {row[2].strip()}.")
+                        else:
+                            try:
+                                if row[2].strip() in ['HTML','HTML_TO_IMG','HTML_TO_PDF','HTML_TO_IMG_TO_PDF']:
+                                    message = Messages(
+                                        user=request.user,
+                                        subject=row[0].strip(),
+                                        content=row[1].strip(),
+                                        format_type=row[2].strip(),
+                                        attachment_content=row[3].strip(),
+                                    )
+                                    message.clean()  # Run model-level validation
+                                    messages_to_create.append(message)
+                                else:
+                                    messages.error(request,f'Cannot add {row[2].strip()} message.')
+                            except ValidationError as e:
+                                messages.error(request, f"Error in row {reader.line_num}: {e.message}")
                 if messages_to_create:
                     Messages.objects.bulk_create(messages_to_create, batch_size=10000)
                     messages.success(request, "Bulk upload completed successfully!")
@@ -350,7 +381,6 @@ def upload_messages(request):
         'single_form': single_form,
         'bulk_form': bulk_form,
     })
-
 
 
 @login_required
@@ -519,6 +549,7 @@ def getcampaigns(request,ipaddress):
         accounts.append({'email':acc.email,'password':acc.password})
     campaign_data = {
             'id': campaign.id,
+            'send_from': campaign.sending_from,
             'custom_tags': tag_names,
             'frequency': campaign.frequency,
             'accounts': accounts,

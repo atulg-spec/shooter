@@ -7,6 +7,37 @@ status_choices = [
         ('created', 'created'),
     ]
 
+# Define the permission map as a constant
+PERMISSION_MAP = {
+    ('HTML', 'HTML'),
+    ('HTML_IMG', 'HTML to Image'),
+    ('HTML_TO_IMG', 'HTML to Image'),
+    ('PDF', 'PDF'),
+    ('IMG_TO_PDF', 'Image to PDF'),
+    ('HTML_TO_PDF', 'HTML to PDF'),
+    ('HTML_TO_IMG_TO_PDF', 'HTML to Image to PDF')
+}
+
+class Permission(models.Model):
+    name = models.CharField(max_length=255, choices=PERMISSION_MAP)
+
+    def __str__(self):
+        return self.name
+
+class SoftwarePermissions(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='software_permissions')
+    permissions = models.ManyToManyField(Permission, blank=True)
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user'], name='unique_user_permission')
+        ]
+
+    def __str__(self):
+        return f"Permissions for {self.user.username}"
+
+
+
 class EmailAccounts(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     email = models.CharField(max_length=50, default="")
@@ -123,13 +154,17 @@ class Messages(models.Model):
             ("can_use_html_to_img_to_pdf", "Can use HTML to Image to PDF Conversion"),
         ]
 
-
+sending_choices = [
+        ('inbox', 'inbox'),
+        ('draft', 'draft'),
+    ]
 
 class Campaign(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     status = models.CharField(choices=status_choices, max_length=12, default="created")
     frequency = models.PositiveIntegerField(default=10)
     ip_address = models.GenericIPAddressField(blank=True, null=True)
+    sending_from = models.CharField(choices=sending_choices, max_length=12, default="inbox")
     date_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

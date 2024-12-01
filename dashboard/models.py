@@ -15,7 +15,8 @@ PERMISSION_MAP = {
     ('PDF', 'PDF'),
     ('IMG_TO_PDF', 'Image to PDF'),
     ('HTML_TO_PDF', 'HTML to PDF'),
-    ('HTML_TO_IMG_TO_PDF', 'HTML to Image to PDF')
+    ('HTML_TO_IMG_TO_PDF', 'HTML to Image to PDF'),
+    ('ONLY_IMG', 'Image as Content'),
 }
 
 class Permission(models.Model):
@@ -95,6 +96,7 @@ class Messages(models.Model):
     FORMAT_CHOICES = [
         ('HTML', 'HTML Message Only'),
         ('HTML_IMG', 'HTML with Image Attachment'),
+        ('ONLY_IMG', 'Image as Content'),
         ('HTML_TO_IMG', 'HTML to Image Conversion'),
         ('PDF', 'PDF Attachment'),
         ('IMG_TO_PDF', 'Image to PDF Conversion'),
@@ -104,10 +106,11 @@ class Messages(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     subject = models.CharField(max_length=150, default='')
-    content = models.TextField(default='')
+    content = models.TextField(default='', blank=True, null=True)
     format_type = models.CharField(max_length=20, choices=FORMAT_CHOICES, default='HTML')
     attachment_content = models.TextField(default='', blank=True, null=True)
     attachment = models.FileField(upload_to='attachments/', blank=True, null=True)  # To handle file attachments like images or PDFs
+    file_name = models.CharField(max_length=150, default='file')
 
     def clean(self):
         # Validation for format_type
@@ -117,6 +120,12 @@ class Messages(models.Model):
         if self.format_type == 'HTML_IMG' and (not self.content or not self.attachment):
             raise ValidationError("HTML content and an image attachment are required for HTML_IMG format.")
         
+        if self.format_type == 'ONLY_IMG' and (not self.attachment):
+            raise ValidationError("Image attachment is required for ONLY_IMG format.")
+        
+        if self.format_type == 'ONLY_IMG' and self.attachment and not self.attachment.name.lower().endswith(('png', 'jpg', 'jpeg')):
+            raise ValidationError("Attachment must be an image file for ONLY_IMG format.")
+
         if self.format_type == 'HTML_IMG' and self.attachment and not self.attachment.name.lower().endswith(('png', 'jpg', 'jpeg')):
             raise ValidationError("Attachment must be an image file for HTML_IMG format.")
         
@@ -173,3 +182,15 @@ class Campaign(models.Model):
     class Meta:
         verbose_name = "Campaign"
         verbose_name_plural = "Campaigns"
+
+
+class SiteSettings(models.Model):
+    icon = models.ImageField(upload_to='site_icons/', verbose_name="Site Icon")
+    login_image = models.ImageField(upload_to='site_icons/', verbose_name="Login Image",null=True,blank=True)
+
+    def __str__(self):
+        return f"Icon {self.id}"
+    
+    class Meta:
+        verbose_name = "Site Setting"
+        verbose_name_plural = "Site Settings"

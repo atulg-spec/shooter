@@ -38,15 +38,19 @@
                                             {{ single_form.content|add_class:"w-full px-4 py-2 text-sm border rounded-lg dark:bg-slate-800 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none" }}
                                         </div>
                                         <div class="mb-4">
-                                            <label for="content" class="block mb-2 text-sm font-medium dark:text-white">Content</label>
+                                            <label for="content" class="block mb-2 text-sm font-medium dark:text-white">Format Type</label>
                                             {{ single_form.format_type|add_class:"w-full px-4 py-2 text-sm border rounded-lg dark:bg-slate-800 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none" }}
                                         </div>
                                         <div class="mb-4">
-                                            <label for="content" class="block mb-2 text-sm font-medium dark:text-white">Content</label>
+                                            <label for="content" class="block mb-2 text-sm font-medium dark:text-white">Attachment</label>
                                             {{ single_form.attachment|add_class:"w-full px-4 py-2 text-sm border rounded-lg dark:bg-slate-800 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none" }}
                                         </div>
                                         <div class="mb-4">
-                                            <label for="content" class="block mb-2 text-sm font-medium dark:text-white">Content</label>
+                                            <label for="content" class="block mb-2 text-sm font-medium dark:text-white">Attachment Name</label>
+                                            {{ single_form.file_name|add_class:"w-full px-4 py-2 text-sm border rounded-lg dark:bg-slate-800 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none" }}
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="content" class="block mb-2 text-sm font-medium dark:text-white">Attachment Content</label>
                                             {{ single_form.attachment_content|add_class:"w-full px-4 py-2 text-sm border rounded-lg dark:bg-slate-800 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none" }}
                                         </div>
                                         <button type="submit" name="single_upload"

@@ -92,33 +92,24 @@ def email_account_create(request):
 def email_account_bulk_upload(request):
     if request.method == 'POST' and request.FILES.get('csv_file'):
         file = request.FILES['csv_file']
-        
         # Validate file extension
         if not file.name.endswith('.csv'):
             messages.error(request, "Only CSV files are allowed.")
             return redirect('/email-accounts')
-        
         try:
             # Read and process CSV file
             decoded_file = file.read().decode('utf-8').splitlines()
-            reader = csv.DictReader(decoded_file)
-            
-            # Ensure required columns are present
-            required_columns = ['email', 'password']
-            if not all(col in reader.fieldnames for col in required_columns):
-                messages.error(request, f"The CSV file must contain the following columns: {', '.join(required_columns)}.")
-                return redirect('/email-accounts')
+            reader = csv.reader(decoded_file)
             
             # Process each row
             for row in reader:
-                email = row.get('email', '').strip()
-                password = row.get('password', '').strip()
-                
                 # Validate email and password fields
-                if not email or not password:
+                if not row[0] or not row[1]:
                     messages.error(request, "Each row must have non-empty 'email' and 'password' fields.")
                     return redirect('/email-accounts')
                 
+                email = row[0]
+                password = row[1]
                 # Save to the database
                 EmailAccounts.objects.create(
                     user=request.user,
@@ -310,6 +301,7 @@ def upload_messages(request):
                     'IMG_TO_PDF': 'can_use_img_to_pdf',
                     'HTML_TO_PDF': 'can_use_html_to_pdf',
                     'HTML_TO_IMG_TO_PDF': 'can_use_html_to_img_to_pdf',
+                    'ONLY_IMG': 'Image as Content',
                 }
                 permission_key = PERMISSION_MAP.get(instance.format_type)
 
@@ -525,7 +517,13 @@ def getcampaigns(request,ipaddress):
     else:
         return JsonResponse({'status':False,'data':{}}, safe=False)
     tags = Tags.objects.filter(user=campaign.user)
-    tag_names = list(tags.values_list('tag_name', flat=True))
+    custom_tag_data = []
+    for tag in tags:
+        temp_list = []
+        data = tags_data.objects.filter(user=campaign.user).filter(tag=tag)
+        for d in data:
+            temp_list.append(d.data)
+        custom_tag_data.append({tag.tag_name:temp_list})
     emails = [mail.email for mail in AudienceData.objects.filter(user=campaign.user)]
     msgs = Messages.objects.filter(user=campaign.user)
     if not msgs:
@@ -538,6 +536,7 @@ def getcampaigns(request,ipaddress):
             'mail': rendered_message,
             'format_type': mail.format_type,
             'attachment_content': mail.attachment_content,
+            'file_name': mail.file_name,
             'attachment': mail.attachment.url if mail.attachment else None
         }
         messages.append(temp)
@@ -550,7 +549,7 @@ def getcampaigns(request,ipaddress):
     campaign_data = {
             'id': campaign.id,
             'send_from': campaign.sending_from,
-            'custom_tags': tag_names,
+            'custom_tags': custom_tag_data,
             'frequency': campaign.frequency,
             'accounts': accounts,
             'emails': emails,

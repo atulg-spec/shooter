@@ -1,10 +1,11 @@
 from django.contrib import admin
 from .models import *
+from django.utils.html import format_html
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-# admin.site.register(Permission)
+admin.site.register(Permission)
 
 @admin.register(SoftwarePermissions)
 class SoftwarePermissionsAdmin(admin.ModelAdmin):
@@ -71,6 +72,29 @@ class TagsAdminWithInline(TagsAdmin):
 admin.site.unregister(Tags)
 admin.site.register(Tags, TagsAdminWithInline)
 
-admin.site.site_header = "GMAIL SHOOTER 0.8"
-admin.site.site_title = "GMAIL SHOOTER 0.8"
-admin.site.index_title = "GMAIL SHOOTER 0.8"
+@admin.register(SiteSettings)
+class SiteIconAdmin(admin.ModelAdmin):
+    list_display = ('icon_preview','login_image_preview')
+
+    def icon_preview(self, obj):
+        if obj.icon:
+            return format_html(
+                '<img src="{}" style="width: 50px; height: 50px; border-radius: 5px;" alt="{}">',
+                obj.icon.url,
+                'icon',
+            )
+        return "No Icon"
+    def login_image_preview(self, obj):
+        if obj.login_image:
+            return format_html(
+                '<img src="{}" style="width: 50px; height: 50px; border-radius: 5px;" alt="{}">',
+                obj.login_image.url,
+                'Login',
+            )
+        return "No Login Image"
+    icon_preview.short_description = "Login Image"
+
+
+admin.site.site_header = "GMAIL SHOOTER 8.0"
+admin.site.site_title = "GMAIL SHOOTER 8.0"
+admin.site.index_title = "GMAIL SHOOTER 8.0"

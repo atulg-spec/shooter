@@ -44,7 +44,7 @@ class TagsAdmin(admin.ModelAdmin):
 @admin.register(tags_data)
 class TagsDataAdmin(admin.ModelAdmin):
     list_display = ('tag', 'data','user')
-    search_fields = ('data','user')
+    search_fields = ('data',)
     list_filter = ('tag','user')
 
 @admin.register(Messages)

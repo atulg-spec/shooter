@@ -48,6 +48,14 @@
                                     {{ form.sending_from|add_class:"w-full px-4 py-2 text-sm border rounded-lg dark:bg-slate-800 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none" }}
                                 </div>
                             </div>
+                            <div>
+                                <label for="audience_data" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                                    Audience Data
+                                </label>
+                                <div class="relative">
+                                    {{ form.audience_data|add_class:"w-full px-4 py-2 text-sm border rounded-lg dark:bg-slate-800 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none" }}
+                                </div>
+                            </div> 
                             
                         </div>
                     
@@ -73,11 +81,13 @@
                     <table class="min-w-full text-left text-sm text-gray-500 dark:text-gray-400">
                         <thead class="bg-gray-100 dark:bg-gray-700 text-xs uppercase text-gray-700 dark:text-gray-200">
                             <tr>
-                                <th class="px-6 py-3 text-center">Machine</th>
-                                <th class="px-6 py-3 text-center">Status</th>
-                                <th class="px-6 py-3 text-center">Created At</th>
-                                <th class="px-6 py-3 text-center">Frequency</th>
-                                <th class="px-6 py-3 text-center">Sending From</th>
+                                <th class="px-6 py-3">Machine</th>
+                                <th class="px-6 py-3">Audience</th>
+                                <th class="px-6 py-3">Status</th>
+                                <th class="px-6 py-3">Created At</th>
+                                <th class="px-6 py-3">Frequency</th>
+                                <th class="px-6 py-3">Sending From</th>
+                                <th class="px-6 py-3">Start</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -89,24 +99,34 @@
                                         <code class="font-medium">{{ campaign.ip_address }}</code>
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-center">
-                                    <span class="px-3 py-1 rounded-full text-sm font-medium {% if campaign.status == 'created' %}bg-blue-100 text-blue-800{% elif campaign.status == 'success' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                <td class="px-6 py-4">
+                                    {{ campaign.audience_data }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="px-3 py-1 rounded-full text-sm font-medium {% if campaign.status == 'created' %}bg-blue-100 text-blue-800{% elif campaign.status == 'success' %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
                                         {{ campaign.status }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-center">
+                                <td class="px-6 py-4">
                                     {{ campaign.date_time|date:"M d, Y h:i A" }}
                                 </td>
-                                <td class="px-6 py-4 text-center">
+                                <td class="px-6 py-4">
                                     {{ campaign.frequency }}
                                 </td>
-                                <td class="px-6 py-4 text-center">
+                                <td class="px-6 py-4">
                                     {{ campaign.sending_from }}
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <div class="flex justify-center">
+                                        <a href="/campaign/{{campaign.id}}/start/">
+                                            <i class="text-blue-500" data-feather="play-circle"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="4" class="px-6 py-4 text-center text-gray-500">No campaigns found.</td>
+                                <td colspan="4" class="px-6 py-4 text-gray-500">No campaigns found.</td>
                             </tr>
                             {% endfor %}
                         </tbody>

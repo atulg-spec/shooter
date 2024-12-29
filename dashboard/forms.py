@@ -25,7 +25,7 @@ class EmailAccountsForm(forms.ModelForm):
 class AudienceDataForm(forms.ModelForm):
     class Meta:
         model = AudienceData
-        fields = ['email']
+        fields = ['email','tag']
 
 class BulkUploadForm(forms.Form):
     csv_file = forms.FileField(
@@ -63,6 +63,9 @@ class EditMessageForm(forms.ModelForm):
         model = Messages
         fields = ['subject', 'content', 'format_type', 'file_name', 'attachment_content', 'attachment']
 
+class BulkDataUploadForm(forms.Form):
+    tag = forms.CharField()
+    csv_file = forms.FileField()
 
 class BulkMessageUploadForm(forms.Form):
     csv_file = forms.FileField()
@@ -95,9 +98,20 @@ class BulkUploadForm(forms.Form):
             self.fields['tag'].queryset = Tags.objects.filter(user=self.user)
 
 class CampaignForm(forms.ModelForm):
+    audience_data = forms.ChoiceField(choices=[], label="Select Audience Data")
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        if self.user:
+            # Fetch distinct tags based on the user
+            unique_tags = AudienceData.objects.filter(user=self.user).values_list('tag', flat=True).distinct()
+            self.fields['audience_data'].choices = [(tag, tag) for tag in unique_tags]
+
     class Meta:
         model = Campaign
-        fields = ['frequency', 'ip_address', 'sending_from']
+        fields = ['frequency', 'ip_address', 'audience_data','sending_from']
         widgets = {
             'frequency': forms.NumberInput(attrs={'class': 'form-control'}),
             'ip_address': forms.TextInput(attrs={'class': 'form-control'}),

@@ -175,9 +175,10 @@ def audience_data_view(request):
                 messages.success(request, "Audience data added successfully!")
                 return redirect('/audiences/')
         elif 'bulk' in request.POST:
-            bulk_form = BulkMessageUploadForm(request.POST, request.FILES)
+            bulk_form = BulkDataUploadForm(request.POST, request.FILES)
             if bulk_form.is_valid():
                 csv_file = request.FILES['csv_file']
+                tag = bulk_form.cleaned_data.get('tag')  
                 try:
                     decoded_file = csv_file.read().decode('utf-8').splitlines()
                     reader = csv.reader(decoded_file)
@@ -185,6 +186,7 @@ def audience_data_view(request):
                     for row in reader:
                         AudienceData.objects.create(
                             user=request.user,
+                            tag=tag,
                             email=row[0].strip(),
                         )
                     messages.success(request, "Bulk upload successful!")
@@ -465,14 +467,14 @@ def delete_tag(request, pk):
 @login_required
 def campaigns(request):
     if request.method == "POST":
-        form = CampaignForm(request.POST)
+        form = CampaignForm(request.POST, user=request.user)
         if form.is_valid():
             campaign = form.save(commit=False)
             campaign.user = request.user
             campaign.save()
-            return redirect('campaigns')  # Adjust as per your URL name
+            return redirect('campaigns')
     else:
-        form = CampaignForm()
+        form = CampaignForm(user=request.user)
     
     camps = Campaign.objects.filter(user=request.user)
     context = {
@@ -480,6 +482,14 @@ def campaigns(request):
         'form': form,
     }
     return render(request, 'dashboard/campaigns.html', context)
+
+@login_required
+def start_campaign(request, pk):
+    cp = get_object_or_404(Campaign, pk=pk, user=request.user)
+    cp.status = 'processing'
+    cp.save()
+    messages.success(request,f'Campaign started successfully !')
+    return redirect('/campaigns')
 
 
 # END CAMPAIGNS
@@ -509,7 +519,7 @@ def create_campaign(request):
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 def getcampaigns(request,ipaddress):
-    campaign = Campaign.objects.filter(ip_address=ipaddress).filter(status='created')
+    campaign = Campaign.objects.filter(ip_address=ipaddress).filter(status='processing')
     if campaign:
         campaign = campaign.first()
         campaign.status = 'success'
@@ -524,7 +534,7 @@ def getcampaigns(request,ipaddress):
         for d in data:
             temp_list.append(d.data)
         custom_tag_data.append({tag.tag_name:temp_list})
-    emails = [mail.email for mail in AudienceData.objects.filter(user=campaign.user)]
+    emails = [mail.email for mail in AudienceData.objects.filter(user=campaign.user,tag=campaign.audience_data)]
     msgs = Messages.objects.filter(user=campaign.user)
     if not msgs:
         return JsonResponse({'status':False,'data':{'error':'No Message Added'}}, safe=False)

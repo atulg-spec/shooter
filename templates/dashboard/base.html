@@ -13,6 +13,7 @@
     <script src="https://unpkg.com/@popperjs/core@2"></script>
     <link href="/static/assets/css/argon-dashboard-tailwind.css?v=1.0.1" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
 </head>
 
 <body
@@ -40,6 +41,16 @@
 
         <div class="items-center block w-auto max-h-screen overflow-auto h-sidenav grow basis-full">
             <ul class="flex flex-col pl-0 mb-0">
+                <li class="mt-0.5 w-full">
+                    <a class=" dark:text-white dark:opacity-80 py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors"
+                        href="/campaigns/">
+                        <div
+                            class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
+                            <i class="relative top-0 text-sm leading-normal text-red-600 ni ni-world-2"></i>
+                        </div>
+                        <span class="ml-1 duration-300 opacity-100 pointer-events-none ease">Campaigns</span>
+                    </a>
+                </li>
                 <li class="mt-0.5 w-full">
                     <a class="dark:text-white dark:opacity-80 py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors"
                         href="/email-accounts">
@@ -82,18 +93,6 @@
                         <span class="ml-1 duration-300 opacity-100 pointer-events-none ease">Tags</span>
                     </a>
                 </li>
-
-                <li class="mt-0.5 w-full">
-                    <a class=" dark:text-white dark:opacity-80 py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors"
-                        href="/campaigns/">
-                        <div
-                            class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
-                            <i class="relative top-0 text-sm leading-normal text-red-600 ni ni-world-2"></i>
-                        </div>
-                        <span class="ml-1 duration-300 opacity-100 pointer-events-none ease">Campaigns</span>
-                    </a>
-                </li>
-
                 <li class="mt-0.5 w-full">
                     <a class=" dark:text-white dark:opacity-80 py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors"
                         href="/logout/">
@@ -304,6 +303,10 @@
         {% block body %}
         {% endblock body %}
     </main>
+
+    <script>
+        feather.replace();
+    </script>
 
 </body>
 <script src="/static/assets/js/plugins/chartjs.min.js" async></script>

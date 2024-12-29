@@ -31,9 +31,9 @@ class EmailAccountsAdmin(admin.ModelAdmin):
 
 @admin.register(AudienceData)
 class AudienceDataAdmin(admin.ModelAdmin):
-    list_display = ('email', 'user')
-    search_fields = ('email',)
-    list_filter = ('user',)
+    list_display = ('email', 'tag', 'user')
+    search_fields = ('email', 'tag')
+    list_filter = ('user', 'tag')
 
 @admin.register(Tags)
 class TagsAdmin(admin.ModelAdmin):

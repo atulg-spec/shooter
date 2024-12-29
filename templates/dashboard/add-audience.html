@@ -30,6 +30,16 @@
                                         </div>
                                         {% endif %}
                                     </div>
+                                    <div class="mb-4">
+                                        <label for="tag" class="block mb-2 text-xs font-bold">Audience Tag</label>
+                                        <input type="text" name="tag" placeholder="Audience Tag" required
+                                            class="block w-full px-3 py-2 text-sm border rounded-lg">
+                                        {% if form.tag.errors %}
+                                        <div class="text-red-500 text-sm mt-1">
+                                            {{ form.tag.errors|join:", " }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                             <hr class="my-4">
@@ -66,6 +76,16 @@
                                         {% if bulk_form.csv_file.errors %}
                                         <div class="text-red-500 text-sm mt-1">
                                             {{ bulk_form.csv_file.errors|join:", " }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="tag" class="block mb-2 text-xs font-bold">Audience Tag</label>
+                                        <input type="text" name="tag" accept=".csv" placeholder="Audience Tag" required
+                                            class="block w-full px-3 py-2 text-sm border rounded-lg">
+                                        {% if bulk_form.tag.errors %}
+                                        <div class="text-red-500 text-sm mt-1">
+                                            {{ bulk_form.tag.errors|join:", " }}
                                         </div>
                                         {% endif %}
                                     </div>

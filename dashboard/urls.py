@@ -37,7 +37,7 @@ urlpatterns = [
     # campaigns
     path('campaigns/', views.campaigns, name='campaigns'),
     # end campaigns
-
+    path('campaign/<int:pk>/start/', views.start_campaign, name='start_campaign'),
     path('create-campaign/', views.create_campaign, name='create_campaign'),
     path("getcampaigns/<str:ipaddress>",views.getcampaigns,name='getcampaigns'),
     path('getRandomTagValue/<int:id>/<str:tagName>', views.getRandomTagValue, name='getRandomTagValue'),
